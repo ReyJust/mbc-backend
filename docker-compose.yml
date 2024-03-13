@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:latest
+    container_name: mbc_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-my_database}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./data:/data
+    ports:
+      - "5432:5432"
+
+  valhalla:
+    image: ghcr.io/gis-ops/docker-valhalla/valhalla:latest
+    container_name: mbc_valhalla
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./valhalla:/custom_files
+
+volumes:
+  postgres_data:

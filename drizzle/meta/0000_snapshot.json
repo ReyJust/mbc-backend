@@ -1,0 +1,212 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "bus_stops": {
+      "name": "bus_stops",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "logical_id": {
+          "name": "logical_id",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bus_routes": {
+      "name": "bus_routes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "fare_stage": {
+          "name": "fare_stage",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "average_journey_times_in_minutes": {
+          "name": "average_journey_times_in_minutes",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "direction": {
+          "name": "direction",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "route_no": {
+          "name": "route_no",
+          "type": "varchar(25)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bus_stop_id": {
+          "name": "bus_stop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bus_stop_logical_id": {
+          "name": "bus_stop_logical_id",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bus_routes_bus_stop_id_fkey": {
+          "name": "bus_routes_bus_stop_id_fkey",
+          "tableFrom": "bus_routes",
+          "tableTo": "bus_stops",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "bus_stop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "bus_routes_route_no_fkey": {
+          "name": "bus_routes_route_no_fkey",
+          "tableFrom": "bus_routes",
+          "tableTo": "bus_lines",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "route_no"
+          ],
+          "columnsTo": [
+            "route_no"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "bus_routes_fare_stage_fkey": {
+          "name": "bus_routes_fare_stage_fkey",
+          "tableFrom": "bus_routes",
+          "tableTo": "bus_fares",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "fare_stage"
+          ],
+          "columnsTo": [
+            "fare_stage"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bus_lines": {
+      "name": "bus_lines",
+      "schema": "",
+      "columns": {
+        "route_no": {
+          "name": "route_no",
+          "type": "varchar(25)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bus_fares": {
+      "name": "bus_fares",
+      "schema": "",
+      "columns": {
+        "fare_stage": {
+          "name": "fare_stage",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "adult_fare": {
+          "name": "adult_fare",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "child_fare": {
+          "name": "child_fare",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "student_fare": {
+          "name": "student_fare",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  }
+}
