@@ -43,3 +43,45 @@ export const busRoutes = pgTable("bus_routes", {
   busStopLogicalId: varchar("bus_stop_logical_id", { length: 50 }),
   type: varchar("type", { length: 255 }),
 });
+
+export const userTable = pgTable("user", {
+  id: text("id").primaryKey(),
+  email: text("email").unique().notNull(),
+  hashed_password: text("hashed_password").notNull(),
+  email_verified: boolean("email_verified").default(false),
+});
+
+export const sessionTable = pgTable("session", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "date",
+  }).notNull(),
+});
+
+export const emailVerificationCodeTable = pgTable("email_verification_code", {
+  id: serial("id"),
+  code: text("code").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  email: text("email").notNull(),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "date",
+  }).notNull(),
+});
+
+export const passwordResetTokenTable = pgTable("password_reset_token", {
+  tokenHash: text("token_hash").unique(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "date",
+  }).notNull(),
+});
