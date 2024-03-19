@@ -4,6 +4,10 @@ import {
   varchar,
   numeric,
   foreignKey,
+  text,
+  timestamp,
+  serial,
+  boolean,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 

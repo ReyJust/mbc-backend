@@ -1,5 +1,5 @@
 import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as schema from "../schema.ts";
+import * as schema from "./schema.ts";
 import { Client } from "pg";
 
 import * as dotenv from "dotenv";
