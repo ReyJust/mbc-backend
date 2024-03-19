@@ -27,6 +27,10 @@
     "drizzle:generate": "drizzle-kit generate:pg",
     "drizzle:introspect": "drizzle-kit introspect:pg",
     "drizzle:seed": "bun src/db/seed.ts",
-    "drizzle:migrate": "bun src/db/migrate.ts"
+    "drizzle:migrate": "bun src/db/migrate.ts",
+    "dev": "docker compose up -d && bun --watch src/app.ts",
+    "build": "bun build src/app.ts",
+    "start": "NODE_ENV=production bun src/app.ts",
+    "test": "bun test"
   }
 }
