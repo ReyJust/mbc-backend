@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { swagger } from "@elysiajs/swagger";
 import { helmet } from "elysia-helmet";
 import {
+  authController,
   busLinesController,
   busRoutesController,
 } from "./controllers";
@@ -19,6 +20,7 @@ const app = new Elysia()
   .get("/health", ({ db }) => {
     return "Healthy!";
   })
+  .use(authController)
   .use(busLinesController)
   .use(busRoutesController)
   .listen(3000);
