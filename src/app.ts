@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { swagger } from "@elysiajs/swagger";
+import { helmet } from "elysia-helmet";
 import {
   busLinesController,
   busRoutesController,
@@ -13,6 +14,7 @@ const db = new Elysia({ name: "db" }).decorate("db", await init_database());
 const app = new Elysia()
   .use(swagger())
   .use(cors())
+  .use(helmet())
   .use(db)
   .get("/health", ({ db }) => {
     return "Healthy!";

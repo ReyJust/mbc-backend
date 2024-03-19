@@ -6,7 +6,7 @@
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.30.1",
     "elysia": "^0.8.17",
-    "fastify": "^4.26.2",
+    "elysia-helmet": "^1.0.2",
     "inquirer": "^9.2.15",
     "pg": "^8.11.3",
     "postgres": "^3.4.3"
