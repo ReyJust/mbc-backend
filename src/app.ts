@@ -10,6 +10,8 @@ import init_database from "./db";
 import { cors } from "@elysiajs/cors";
 import chalk from "chalk";
 
+// import * as middlewares from "./middlewares";
+
 const db = new Elysia({ name: "db" }).decorate("db", await init_database());
 
 const app = new Elysia()
@@ -31,6 +33,10 @@ console.info(
     `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`
   )
 );
+
+app.onStop(() => {
+  console.log('stopped app');
+})
 
 export { app, db };
 // export type App = typeof app;
