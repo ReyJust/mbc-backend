@@ -3,7 +3,7 @@ import { sha256 } from "oslo/crypto";
 import { encodeHex } from "oslo/encoding";
 import { generateId } from "lucia";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import * as schema from "../../db/schema.js";
+import * as schema from "../../db/schema.ts";
 import { eq } from "drizzle-orm";
 
 export const createPasswordResetToken = async (

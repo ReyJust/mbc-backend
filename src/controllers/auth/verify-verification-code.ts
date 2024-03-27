@@ -1,5 +1,5 @@
 import type { User } from "lucia";
-import * as schema from "../../db/schema.js";
+import * as schema from "../../db/schema.ts";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { eq } from "drizzle-orm";
 import { isWithinExpirationDate } from "oslo";

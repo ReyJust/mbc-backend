@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import init_database from "../../db/index.js";
-import { lucia } from "../../lucia.js";
+import { lucia } from "../../lucia.ts";
 import { generateId } from "lucia";
 import { userTable, passwordResetTokenTable } from "../../db/schema.js";
 import { eq } from "drizzle-orm";
@@ -39,8 +39,9 @@ export const authController = new Elysia({ prefix: "/user" })
         const verificationCode = await generateEmailVerificationCode(
           userId,
           email,
-          db.db
+          db
         );
+
         await sendVerificationCode(email, verificationCode);
 
         const session = await lucia.createSession(userId, {});
@@ -106,8 +107,8 @@ export const authController = new Elysia({ prefix: "/user" })
   )
   .post(
     "/email-verification",
-    async ({ db, body: { code }, set, headers: { Cookie } }) => {
-      const sessionId = lucia.readSessionCookie(Cookie ?? "");
+    async ({ db, body: { code }, set, headers: { cookie } }) => {
+      const sessionId = lucia.readSessionCookie(cookie ?? ""); // ? get the correct value from the cookies string
       if (!sessionId) {
         set.status = 401;
         return null;
@@ -143,7 +144,7 @@ export const authController = new Elysia({ prefix: "/user" })
         code: t.String(),
       }),
       headers: t.Object({
-        Cookie: t.String(),
+        cookie: t.String(),
       }),
     }
   )
@@ -199,15 +200,15 @@ export const authController = new Elysia({ prefix: "/user" })
         return null;
       }
 
-      await lucia.invalidateUserSessions(user.id);
+      await lucia.invalidateUserSessions(token.userId);
       const hashedPassword = await new Argon2id().hash(password);
 
       await db.db
         .update(userTable)
         .set({ hashed_password: hashedPassword })
-        .where(eq(userTable.id, user.id));
+        .where(eq(userTable.id, token.userId));
 
-      const session = await lucia.createSession(user.id, {});
+      const session = await lucia.createSession(token.userId, {});
       const sessionCookie = lucia.createSessionCookie(session.id);
 
       set.status = 302;
