@@ -8,8 +8,13 @@ import {
   timestamp,
   serial,
   boolean,
+  smallint,
+  pgEnum,
+  real,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+
+export const busStopTypeEnum = pgEnum("bus_stop_type", ["via", "break"]);
 
 export const busFares = pgTable("bus_fares", {
   fareStage: integer("fare_stage").primaryKey().notNull(),
@@ -24,24 +29,40 @@ export const busLines = pgTable("bus_lines", {
 });
 
 export const busStops = pgTable("bus_stops", {
-  id: integer("id").primaryKey().notNull(),
+  id: serial("id").primaryKey().notNull(),
   name: varchar("name", { length: 100 }),
-  latitude: numeric("latitude"),
-  longitude: numeric("longitude"),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
   logicalId: varchar("logical_id", { length: 50 }),
 });
 
+export const busStopsLogs = pgTable("bus_logs", {
+  id: serial("id").primaryKey().notNull(),
+  logDate: timestamp("log_dt"),
+  routeNo: varchar("route_no", { length: 25 }).references(
+    () => busLines.routeNo
+  ),
+  busStopId: integer("bus_stop_id")
+    .references(() => busStops.id)
+    .notNull(),
+  busStopLogicalId: varchar("bus_stop_logical_id", { length: 50 }),
+  direction: smallint("direction"),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id),
+});
+
 export const busRoutes = pgTable("bus_routes", {
-  id: integer("id").primaryKey().notNull(),
+  id: serial("id").primaryKey().notNull(),
   fareStage: integer("fare_stage").references(() => busFares.fareStage),
   averageJourneyTimesInMinutes: numeric("average_journey_times_in_minutes"),
-  direction: integer("direction"),
+  direction: smallint("direction"),
   routeNo: varchar("route_no", { length: 25 }).references(
     () => busLines.routeNo
   ),
   busStopId: integer("bus_stop_id").references(() => busStops.id),
   busStopLogicalId: varchar("bus_stop_logical_id", { length: 50 }),
-  type: varchar("type", { length: 255 }),
+  type: busStopTypeEnum("type"),
 });
 
 export const userTable = pgTable("user", {
@@ -63,7 +84,7 @@ export const sessionTable = pgTable("session", {
 });
 
 export const emailVerificationCodeTable = pgTable("email_verification_code", {
-  id: serial("id"),
+  id: serial("id").unique().primaryKey(),
   code: text("code").notNull(),
   userId: text("user_id")
     .notNull()
@@ -76,7 +97,7 @@ export const emailVerificationCodeTable = pgTable("email_verification_code", {
 });
 
 export const passwordResetTokenTable = pgTable("password_reset_token", {
-  tokenHash: text("token_hash").unique(),
+  tokenHash: text("token_hash").unique().primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id),
