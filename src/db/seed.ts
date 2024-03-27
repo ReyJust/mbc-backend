@@ -35,7 +35,7 @@ const clear = async (drizzleDb?: DrizzleDatabase): Promise<void> => {
   const table_names = tables.rows.map((row) => row.table_name);
 
   for (let table of table_names) {
-    await drizzleDb.db.execute(sql.raw(`TRUNCATE TABLE ${table} CASCADE;`));
+    await drizzleDb.db.execute(sql.raw(`TRUNCATE TABLE "${table}" CASCADE;`));
   }
 
   console.log(chalk.green("✅ Successfully reset database!"));
