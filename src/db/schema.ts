@@ -3,7 +3,6 @@ import {
   integer,
   varchar,
   numeric,
-  foreignKey,
   text,
   timestamp,
   serial,
@@ -12,7 +11,6 @@ import {
   pgEnum,
   real,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
 
 export const busStopTypeEnum = pgEnum("bus_stop_type", ["via", "break"]);
 
@@ -36,6 +34,19 @@ export const busStops = pgTable("bus_stops", {
   logicalId: varchar("logical_id", { length: 50 }),
 });
 
+export const busRoutes = pgTable("bus_routes", {
+  id: serial("id").primaryKey().notNull(),
+  fareStage: integer("fare_stage").references(() => busFares.fareStage),
+  averageJourneyTimesInMinutes: numeric("average_journey_times_in_minutes"),
+  direction: smallint("direction"),
+  routeNo: varchar("route_no", { length: 25 }).references(
+    () => busLines.routeNo
+  ),
+  busStopId: integer("bus_stop_id").references(() => busStops.id),
+  busStopLogicalId: varchar("bus_stop_logical_id", { length: 50 }),
+  type: busStopTypeEnum("type"),
+});
+
 export const busStopsLogs = pgTable("bus_logs", {
   id: serial("id").primaryKey().notNull(),
   logDate: timestamp("log_dt"),
@@ -50,19 +61,6 @@ export const busStopsLogs = pgTable("bus_logs", {
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id),
-});
-
-export const busRoutes = pgTable("bus_routes", {
-  id: serial("id").primaryKey().notNull(),
-  fareStage: integer("fare_stage").references(() => busFares.fareStage),
-  averageJourneyTimesInMinutes: numeric("average_journey_times_in_minutes"),
-  direction: smallint("direction"),
-  routeNo: varchar("route_no", { length: 25 }).references(
-    () => busLines.routeNo
-  ),
-  busStopId: integer("bus_stop_id").references(() => busStops.id),
-  busStopLogicalId: varchar("bus_stop_logical_id", { length: 50 }),
-  type: busStopTypeEnum("type"),
 });
 
 export const userTable = pgTable("user", {

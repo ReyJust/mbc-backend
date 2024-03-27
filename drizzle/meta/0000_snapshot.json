@@ -1,172 +1,9 @@
 {
-  "id": "00000000-0000-0000-0000-000000000000",
-  "prevId": "",
+  "id": "1c9f90e2-fa5c-4802-b858-12888c9faf50",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "bus_stops": {
-      "name": "bus_stops",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "latitude": {
-          "name": "latitude",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "longitude": {
-          "name": "longitude",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "logical_id": {
-          "name": "logical_id",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "bus_routes": {
-      "name": "bus_routes",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "fare_stage": {
-          "name": "fare_stage",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "average_journey_times_in_minutes": {
-          "name": "average_journey_times_in_minutes",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "direction": {
-          "name": "direction",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "route_no": {
-          "name": "route_no",
-          "type": "varchar(25)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "bus_stop_id": {
-          "name": "bus_stop_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "bus_stop_logical_id": {
-          "name": "bus_stop_logical_id",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "type": {
-          "name": "type",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "bus_routes_bus_stop_id_fkey": {
-          "name": "bus_routes_bus_stop_id_fkey",
-          "tableFrom": "bus_routes",
-          "tableTo": "bus_stops",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "bus_stop_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "bus_routes_route_no_fkey": {
-          "name": "bus_routes_route_no_fkey",
-          "tableFrom": "bus_routes",
-          "tableTo": "bus_lines",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "route_no"
-          ],
-          "columnsTo": [
-            "route_no"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "bus_routes_fare_stage_fkey": {
-          "name": "bus_routes_fare_stage_fkey",
-          "tableFrom": "bus_routes",
-          "tableTo": "bus_fares",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "fare_stage"
-          ],
-          "columnsTo": [
-            "fare_stage"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "bus_lines": {
-      "name": "bus_lines",
-      "schema": "",
-      "columns": {
-        "route_no": {
-          "name": "route_no",
-          "type": "varchar(25)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "bus_fares": {
       "name": "bus_fares",
       "schema": "",
@@ -200,13 +37,470 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
+    },
+    "bus_lines": {
+      "name": "bus_lines",
+      "schema": "",
+      "columns": {
+        "route_no": {
+          "name": "route_no",
+          "type": "varchar(25)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bus_routes": {
+      "name": "bus_routes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "fare_stage": {
+          "name": "fare_stage",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "average_journey_times_in_minutes": {
+          "name": "average_journey_times_in_minutes",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "direction": {
+          "name": "direction",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "route_no": {
+          "name": "route_no",
+          "type": "varchar(25)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bus_stop_id": {
+          "name": "bus_stop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bus_stop_logical_id": {
+          "name": "bus_stop_logical_id",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "bus_stop_type",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bus_routes_fare_stage_bus_fares_fare_stage_fk": {
+          "name": "bus_routes_fare_stage_bus_fares_fare_stage_fk",
+          "tableFrom": "bus_routes",
+          "tableTo": "bus_fares",
+          "columnsFrom": [
+            "fare_stage"
+          ],
+          "columnsTo": [
+            "fare_stage"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "bus_routes_route_no_bus_lines_route_no_fk": {
+          "name": "bus_routes_route_no_bus_lines_route_no_fk",
+          "tableFrom": "bus_routes",
+          "tableTo": "bus_lines",
+          "columnsFrom": [
+            "route_no"
+          ],
+          "columnsTo": [
+            "route_no"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "bus_routes_bus_stop_id_bus_stops_id_fk": {
+          "name": "bus_routes_bus_stop_id_bus_stops_id_fk",
+          "tableFrom": "bus_routes",
+          "tableTo": "bus_stops",
+          "columnsFrom": [
+            "bus_stop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bus_stops": {
+      "name": "bus_stops",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "logical_id": {
+          "name": "logical_id",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "bus_logs": {
+      "name": "bus_logs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "log_dt": {
+          "name": "log_dt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "route_no": {
+          "name": "route_no",
+          "type": "varchar(25)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bus_stop_id": {
+          "name": "bus_stop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bus_stop_logical_id": {
+          "name": "bus_stop_logical_id",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "direction": {
+          "name": "direction",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bus_logs_route_no_bus_lines_route_no_fk": {
+          "name": "bus_logs_route_no_bus_lines_route_no_fk",
+          "tableFrom": "bus_logs",
+          "tableTo": "bus_lines",
+          "columnsFrom": [
+            "route_no"
+          ],
+          "columnsTo": [
+            "route_no"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "bus_logs_bus_stop_id_bus_stops_id_fk": {
+          "name": "bus_logs_bus_stop_id_bus_stops_id_fk",
+          "tableFrom": "bus_logs",
+          "tableTo": "bus_stops",
+          "columnsFrom": [
+            "bus_stop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "bus_logs_user_id_user_id_fk": {
+          "name": "bus_logs_user_id_user_id_fk",
+          "tableFrom": "bus_logs",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "email_verification_code": {
+      "name": "email_verification_code",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "email_verification_code_user_id_user_id_fk": {
+          "name": "email_verification_code_user_id_user_id_fk",
+          "tableFrom": "email_verification_code",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "email_verification_code_id_unique": {
+          "name": "email_verification_code_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      }
+    },
+    "password_reset_token": {
+      "name": "password_reset_token",
+      "schema": "",
+      "columns": {
+        "token_hash": {
+          "name": "token_hash",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "password_reset_token_user_id_user_id_fk": {
+          "name": "password_reset_token_user_id_user_id_fk",
+          "tableFrom": "password_reset_token",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "password_reset_token_token_hash_unique": {
+          "name": "password_reset_token_token_hash_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "token_hash"
+          ]
+        }
+      }
+    },
+    "session": {
+      "name": "session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "session_user_id_user_id_fk": {
+          "name": "session_user_id_user_id_fk",
+          "tableFrom": "session",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "user": {
+      "name": "user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hashed_password": {
+          "name": "hashed_password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_email_unique": {
+          "name": "user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      }
     }
   },
-  "enums": {},
+  "enums": {
+    "bus_stop_type": {
+      "name": "bus_stop_type",
+      "values": {
+        "via": "via",
+        "break": "break"
+      }
+    }
+  },
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
 }
