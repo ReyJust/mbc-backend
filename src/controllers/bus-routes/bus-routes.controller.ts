@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import init_database from "../db";
+import init_database from "../../db";
 
 const db = new Elysia({ name: "db" }).decorate("db", await init_database());
 

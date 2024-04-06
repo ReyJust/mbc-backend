@@ -5,7 +5,7 @@ import { generateId } from "lucia";
 import { userTable, passwordResetTokenTable } from "../../db/schema.js";
 import { eq } from "drizzle-orm";
 
-import { authModel } from "../../models/auth.model.js";
+import { authDTO } from "../../models";
 import { generateEmailVerificationCode } from "./generate-email-verification-code.js";
 import { sendVerificationCode } from "./send-verification-code.js";
 import { verifyVerificationCode } from "./verify-verification-code.js";
@@ -21,7 +21,7 @@ const db = new Elysia({ name: "db" }).decorate("db", await init_database());
 
 export const authController = new Elysia({ prefix: "/user" })
   .use(db)
-  .use(authModel)
+  .use(authDTO)
   .post(
     "/signup",
     async ({ db, body: { email, password }, set }) => {
@@ -60,6 +60,10 @@ export const authController = new Elysia({ prefix: "/user" })
     },
     {
       body: "auth",
+      detail: {
+        summary: "Register a user",
+        tags: ["Auth"],
+      },
     }
   )
   .post(
@@ -103,6 +107,10 @@ export const authController = new Elysia({ prefix: "/user" })
     },
     {
       body: "auth",
+      detail: {
+        summary: "Login a user",
+        tags: ["Auth"],
+      },
     }
   )
   .post(
@@ -146,6 +154,10 @@ export const authController = new Elysia({ prefix: "/user" })
       headers: t.Object({
         cookie: t.String(),
       }),
+      detail: {
+        summary: "Verify user email",
+        tags: ["Auth"],
+      },
     }
   )
   .post(
@@ -174,6 +186,10 @@ export const authController = new Elysia({ prefix: "/user" })
       body: t.Object({
         email: t.String(),
       }),
+      detail: {
+        summary: "Get reset user password request",
+        tags: ["Auth"],
+      },
     }
   )
   .get(
@@ -223,5 +239,9 @@ export const authController = new Elysia({ prefix: "/user" })
           error: "Invalid password",
         }),
       }),
+      detail: {
+        summary: "Reset user password",
+        tags: ["Auth"],
+      },
     }
   );

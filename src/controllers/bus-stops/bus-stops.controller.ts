@@ -1,25 +1,26 @@
-import { Elysia, t } from "elysia";
+import { Elysia, NotFoundError, t } from "elysia";
 import init_database from "../../db";
 import { sessionMiddleware } from "../../middlewares";
 import { busRoutes, busStops, busLines, busStopsLogs } from "../../db/schema";
 import { eq, and, or, asc, ilike } from "drizzle-orm";
+import { busStopDTO } from "../../models";
 
 const db = new Elysia({ name: "db" }).decorate("db", await init_database());
 
-export const busRoutesController = new Elysia({ prefix: "/bus-stops" })
+export const busStopsController = new Elysia({ prefix: "/bus-stops" })
   .use(db)
+  .use(busStopDTO)
   .get(
     "/",
-    async ({ db, query: { q } }) => {
+    async ({ db, query: { q, offset } }) => {
+      if (!offset) offset = "0";
+
       const allBusStops = await db.db
         .select()
         .from(busStops)
-        .where(
-          or(
-            q ? ilike(busStops.id, `%${q}%`) : undefined,
-            q ? ilike(busStops.name, `%${q}%`) : undefined
-          )
-        );
+        .where(or(q ? ilike(busStops.name, `%${q}%`) : undefined))
+        .offset(parseInt(offset))
+        .limit(100);
 
       const a = allBusStops.reduce((acc, curr) => {
         acc[curr.id] = curr.name;
@@ -31,6 +32,7 @@ export const busRoutesController = new Elysia({ prefix: "/bus-stops" })
     {
       query: t.Object({
         q: t.Optional(t.String()),
+        offset: t.Optional(t.String()),
       }),
       detail: {
         summary: "Search / List bus stops",
@@ -46,17 +48,24 @@ export const busRoutesController = new Elysia({ prefix: "/bus-stops" })
       });
 
       if (!busStopData) {
-        throw new Error(`Bus stop ${bus_stop_id} not found`);
+        throw new NotFoundError(`Bus stop ${bus_stop_id} not found`);
       }
 
       const linkedBusLines = await db.db
-        .selectDistinctOn([busRoutes.routeNo], { title: busLines.title })
+        .selectDistinctOn([busRoutes.routeNo], {
+          title: busLines.title,
+          id: busLines.id,
+        })
         .from(busRoutes)
-        .innerJoin(busLines, eq(busRoutes.routeNo, busLines.routeNo));
+        .innerJoin(busLines, eq(busRoutes.routeNo, busLines.id));
 
       return {
         ...busStopData,
-        linkedBusLines,
+        linkedBusLines: linkedBusLines.reduce((acc, line) => {
+          acc[line.id] = line.title;
+
+          return acc;
+        }, {} as { [id: string]: string | null }),
       };
     },
     {
@@ -187,11 +196,7 @@ export const busRoutesController = new Elysia({ prefix: "/bus-stops" })
       params: t.Object({
         bus_stop_id: t.String(),
       }),
-      body: t.Object({
-        latitude: t.Numeric(),
-        longitude: t.Numeric(),
-        name: t.String(),
-      }),
+      body: "busStop",
       detail: {
         summary: "Get a bus stop logs for a single bus line",
         tags: ["Bus Stops"],
@@ -206,23 +211,21 @@ export const busRoutesController = new Elysia({ prefix: "/bus-stops" })
       params: { bus_stop_id, route_no },
       body: { direction, log_dt },
     }) => {
+
       await db.db.insert(busStopsLogs).values({
         logDate: log_dt,
         routeNo: route_no,
-        busStopId: bus_stop_id,
+        busStopId: String(bus_stop_id),
         direction,
         userId: user?.id as string,
       });
     },
     {
       params: t.Object({
-        bus_stop_id: t.Number(),
+        bus_stop_id: t.String(),
         route_no: t.String(),
       }),
-      body: t.Object({
-        log_dt: t.Date(),
-        direction: t.Number(),
-      }),
+      body: "busStopLog",
       detail: {
         summary: "Add a log for a bus stop on a bus line.",
         tags: ["Bus Stops"],

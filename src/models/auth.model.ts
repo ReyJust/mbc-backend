@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 
-export const authModel = new Elysia().model({
+export const authDTO = new Elysia().model({
   auth: t.Object({
     email: t.String({
       format: "email",
