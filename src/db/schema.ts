@@ -15,14 +15,14 @@ import {
 export const busStopTypeEnum = pgEnum("bus_stop_type", ["via", "break"]);
 
 export const busFares = pgTable("bus_fares", {
-  fareStage: integer("fare_stage").primaryKey().notNull(),
+  id: integer("id").primaryKey().notNull(),
   adultFare: integer("adult_fare"),
   childFare: integer("child_fare"),
   studentFare: integer("student_fare"),
 });
 
 export const busLines = pgTable("bus_lines", {
-  routeNo: varchar("route_no", { length: 25 }).primaryKey().notNull(),
+  id: varchar("id", { length: 25 }).primaryKey().notNull(),
   title: varchar("title", { length: 255 }),
 });
 
@@ -36,11 +36,11 @@ export const busStops = pgTable("bus_stops", {
 
 export const busRoutes = pgTable("bus_routes", {
   id: serial("id").primaryKey().notNull(),
-  fareStage: integer("fare_stage").references(() => busFares.fareStage),
+  fareStage: integer("fare_stage").references(() => busFares.id),
   averageJourneyTimesInMinutes: numeric("average_journey_times_in_minutes"),
   direction: smallint("direction"),
   routeNo: varchar("route_no", { length: 25 }).references(
-    () => busLines.routeNo
+    () => busLines.id
   ),
   busStopId: integer("bus_stop_id").references(() => busStops.id),
   busStopLogicalId: varchar("bus_stop_logical_id", { length: 50 }),
@@ -51,7 +51,7 @@ export const busStopsLogs = pgTable("bus_logs", {
   id: serial("id").primaryKey().notNull(),
   logDate: timestamp("log_dt"),
   routeNo: varchar("route_no", { length: 25 }).references(
-    () => busLines.routeNo
+    () => busLines.id
   ),
   busStopId: integer("bus_stop_id")
     .references(() => busStops.id)

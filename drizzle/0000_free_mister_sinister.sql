@@ -5,14 +5,14 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "bus_fares" (
-	"fare_stage" integer PRIMARY KEY NOT NULL,
+	"id" integer PRIMARY KEY NOT NULL,
 	"adult_fare" integer,
 	"child_fare" integer,
 	"student_fare" integer
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "bus_lines" (
-	"route_no" varchar(25) PRIMARY KEY NOT NULL,
+	"id" varchar(25) PRIMARY KEY NOT NULL,
 	"title" varchar(255)
 );
 --> statement-breakpoint
@@ -76,13 +76,13 @@ CREATE TABLE IF NOT EXISTS "user" (
 );
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "bus_routes" ADD CONSTRAINT "bus_routes_fare_stage_bus_fares_fare_stage_fk" FOREIGN KEY ("fare_stage") REFERENCES "bus_fares"("fare_stage") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "bus_routes" ADD CONSTRAINT "bus_routes_fare_stage_bus_fares_id_fk" FOREIGN KEY ("fare_stage") REFERENCES "bus_fares"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "bus_routes" ADD CONSTRAINT "bus_routes_route_no_bus_lines_route_no_fk" FOREIGN KEY ("route_no") REFERENCES "bus_lines"("route_no") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "bus_routes" ADD CONSTRAINT "bus_routes_route_no_bus_lines_id_fk" FOREIGN KEY ("route_no") REFERENCES "bus_lines"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -94,7 +94,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "bus_logs" ADD CONSTRAINT "bus_logs_route_no_bus_lines_route_no_fk" FOREIGN KEY ("route_no") REFERENCES "bus_lines"("route_no") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "bus_logs" ADD CONSTRAINT "bus_logs_route_no_bus_lines_id_fk" FOREIGN KEY ("route_no") REFERENCES "bus_lines"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

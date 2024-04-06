@@ -74,10 +74,14 @@ const seed = async (): Promise<void> => {
     await clear(drizzleDb);
 
     for (const table_name of TABLES) {
+      console.log(table_name);
+      
+      const setSerial = ['bus_logs', 'bus_stops', 'bus_routes'].includes(table_name) ? `SELECT setval('${table_name}_id_seq', max(id)) FROM ${table_name}`: "";
       // const table_name = getTableName(table);
       const populate_query = sql.raw(
-        `COPY ${table_name} FROM '/data/${table_name}.csv' DELIMITER ',' CSV HEADER;`
-      );
+        `COPY ${table_name} FROM '/data/${table_name}.csv' DELIMITER ',' CSV HEADER;
+        ${setSerial}`
+      )
 
       const res = await drizzleDb.db.execute(populate_query);
       /* @ts-ignore */

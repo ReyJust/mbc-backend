@@ -1,5 +1,5 @@
 {
-  "id": "1c9f90e2-fa5c-4802-b858-12888c9faf50",
+  "id": "d5c31d31-5989-43ee-a67e-3a42f0001211",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -8,8 +8,8 @@
       "name": "bus_fares",
       "schema": "",
       "columns": {
-        "fare_stage": {
-          "name": "fare_stage",
+        "id": {
+          "name": "id",
           "type": "integer",
           "primaryKey": true,
           "notNull": true
@@ -42,8 +42,8 @@
       "name": "bus_lines",
       "schema": "",
       "columns": {
-        "route_no": {
-          "name": "route_no",
+        "id": {
+          "name": "id",
           "type": "varchar(25)",
           "primaryKey": true,
           "notNull": true
@@ -115,28 +115,28 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "bus_routes_fare_stage_bus_fares_fare_stage_fk": {
-          "name": "bus_routes_fare_stage_bus_fares_fare_stage_fk",
+        "bus_routes_fare_stage_bus_fares_id_fk": {
+          "name": "bus_routes_fare_stage_bus_fares_id_fk",
           "tableFrom": "bus_routes",
           "tableTo": "bus_fares",
           "columnsFrom": [
             "fare_stage"
           ],
           "columnsTo": [
-            "fare_stage"
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "bus_routes_route_no_bus_lines_route_no_fk": {
-          "name": "bus_routes_route_no_bus_lines_route_no_fk",
+        "bus_routes_route_no_bus_lines_id_fk": {
+          "name": "bus_routes_route_no_bus_lines_id_fk",
           "tableFrom": "bus_routes",
           "tableTo": "bus_lines",
           "columnsFrom": [
             "route_no"
           ],
           "columnsTo": [
-            "route_no"
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -247,15 +247,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "bus_logs_route_no_bus_lines_route_no_fk": {
-          "name": "bus_logs_route_no_bus_lines_route_no_fk",
+        "bus_logs_route_no_bus_lines_id_fk": {
+          "name": "bus_logs_route_no_bus_lines_id_fk",
           "tableFrom": "bus_logs",
           "tableTo": "bus_lines",
           "columnsFrom": [
             "route_no"
           ],
           "columnsTo": [
-            "route_no"
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
