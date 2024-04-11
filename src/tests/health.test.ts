@@ -1,13 +1,14 @@
 // test/index.test.ts
 import { describe, expect, it } from "bun:test";
+import { treaty } from "@elysiajs/eden";
 import { app } from "../app";
+
+const api = treaty(app);
 
 describe("General endpoints", () => {
   it("Be Healthy!", async () => {
-    const response = await app
-      .handle(new Request("http://localhost:3000/health"))
-      .then((res) => res.text());
+    const res = await api.health.get();
 
-    expect(response).toBe("Healthy!");
+    expect(res.data).toBe("Healthy!");
   });
 });
