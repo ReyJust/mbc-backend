@@ -221,7 +221,10 @@ export const busLinesController = new Elysia({
         })
         .where(eq(busLines.id, route_no))
         .returning();
-
+      
+      if (line.length === 0 ) {
+        throw new NotFoundError(`Bus line ${route_no} not found`);
+      }
       // TODO: Make a route to add remove a stop
       // const routeData: {
       //   fareStage: number;
@@ -293,7 +296,6 @@ type IRouteStop = {
 
 // Create a custom error for already existing items
 class AlreadyExistsError extends Error {
-
   constructor(message: string) {
     super(message);
     this.name = "AlreadyExistsError";
