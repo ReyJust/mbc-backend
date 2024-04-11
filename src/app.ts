@@ -12,8 +12,6 @@ import { cors } from "@elysiajs/cors";
 import chalk from "chalk";
 import { logger } from "@bogeychan/elysia-logger";
 
-// import * as middlewares from "./middlewares";
-
 const db = new Elysia({ name: "db" }).decorate("db", await init_database());
 
 const app = new Elysia()
@@ -94,7 +92,7 @@ const app = new Elysia()
   .use(cors())
   .use(helmet())
   .use(db)
-  .get("/health", ({ db, log }) => {
+  .get("/health", () => {
     return "Healthy!";
   })
   .use(authController)
