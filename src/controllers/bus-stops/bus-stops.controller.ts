@@ -170,7 +170,10 @@ export const busStopsController = new Elysia({ prefix: "/bus-stops" })
   .post(
     "/",
     async ({ db, body }) => {
-      await db.db.insert(busStops).values(body);
+      // ? Since we don't pass the bus stop id (serial), there is no risk to create an already existing.
+      const busStop = await db.db.insert(busStops).values(body).returning();
+
+      return busStop[0];
     },
     {
       body: t.Object({
@@ -178,8 +181,15 @@ export const busStopsController = new Elysia({ prefix: "/bus-stops" })
         longitude: t.Numeric(),
         name: t.String(),
       }),
+      response: t.Object({
+        id: t.Number(),
+        name: t.Nullable(t.String()),
+        latitude: t.Nullable(t.Numeric()),
+        longitude: t.Nullable(t.Numeric()),
+        logicalId: t.Nullable(t.String()),
+      }),
       detail: {
-        summary: "Get a bus stop logs for a single bus line",
+        summary: "Create a bus stop",
         tags: ["Bus Stops"],
       },
     }
@@ -187,18 +197,32 @@ export const busStopsController = new Elysia({ prefix: "/bus-stops" })
   .put(
     "/:bus_stop_id",
     async ({ db, body, params: { bus_stop_id } }) => {
-      await db.db
+      const busStop = await db.db
         .update(busStops)
         .set(body)
-        .where(eq(busStops.id, parseInt(bus_stop_id)));
+        .where(eq(busStops.id, parseInt(bus_stop_id)))
+        .returning();
+
+      if (busStop.length === 0) {
+        throw new NotFoundError(`Bus Stop ${bus_stop_id} not found`);
+      }
+
+      return busStop[0];
     },
     {
       params: t.Object({
         bus_stop_id: t.String(),
       }),
+      response: t.Object({
+        id: t.Number(),
+        name: t.Nullable(t.String()),
+        latitude: t.Nullable(t.Numeric()),
+        longitude: t.Nullable(t.Numeric()),
+        logicalId: t.Nullable(t.String()),
+      }),
       body: "busStop",
       detail: {
-        summary: "Get a bus stop logs for a single bus line",
+        summary: "Update a bus stop",
         tags: ["Bus Stops"],
       },
     }
@@ -211,7 +235,6 @@ export const busStopsController = new Elysia({ prefix: "/bus-stops" })
       params: { bus_stop_id, route_no },
       body: { direction, log_dt },
     }) => {
-
       await db.db.insert(busStopsLogs).values({
         logDate: log_dt,
         routeNo: route_no,
