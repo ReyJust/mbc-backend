@@ -1,78 +1,83 @@
 import { describe, expect, it, mock } from "bun:test";
 import { faker } from "@faker-js/faker";
+import { treaty } from "@elysiajs/eden";
+import { app } from "../app";
 
-const host = "http://localhost:3000";
-const controllerPath = "/bus-stops";
-const headers = {
-  "Content-Type": "application/json",
-};
+const api = treaty(app);
 
-const url = `${host}${controllerPath}`;
-
-let busStopsIds: string[] = [];
+let busStopsIds: number[] = [];
 describe("List/Search Bus stops", () => {
-  it("List all bus stops", async () => {
-    const response = await fetch(`${url}`, {
-      method: "GET",
-      headers,
-    });
-    const data: any = await response.json();
+  const q = "port";
 
-    expect(response.status).toBe(200);
+  it("List all bus stops", async () => {
+    const { data, error, status } = await api["bus-stops"].index.get({
+      query: {},
+    });
+
+    if (error) {
+      throw error.value;
+    }
+
+    expect(status).toBe(200);
     expect(Object.keys(data).length).toBe(100);
 
-    busStopsIds = Object.keys(data);
+    busStopsIds = Object.keys(data).map((id) => parseInt(id));
   });
 
   it("Search bus stops by name", async () => {
-    const term = "port";
-    const response = await fetch(`${url}?q=${term}`, {
-      method: "GET",
-      headers,
-    });
-    const caseSensitivity = await fetch(`${url}?q=${term.toUpperCase()}`, {
-      method: "GET",
-      headers,
+    const { data, error, status } = await api["bus-stops"].index.get({
+      query: { q },
     });
 
-    const data = (await response.json()) as { [key: string]: string };
-    const caseSensitivityData = (await caseSensitivity.json()) as {
-      [key: string]: string;
-    };
+    if (error) {
+      throw error.value;
+    }
 
-    expect(response.status).toBe(200);
-    expect(caseSensitivity.status).toBe(200);
+    expect(status).toBe(200);
 
     expect(Object.keys(data).length).toBeLessThanOrEqual(100);
-    expect(Object.keys(caseSensitivity).length).toBeLessThanOrEqual(100);
 
     // Check if all values include the substring
-    const searchWork = Object.values(data).every((value: string) =>
-      value.toLowerCase().includes(term)
-    );
-    const caseSensitivitySearchWork = Object.values(caseSensitivity).every(
-      (value: string) => value.toLowerCase().includes(term)
+    const searchWork = Object.values(data).every((value) =>
+      value?.toLowerCase().includes(q)
     );
 
     // Assert that all values contain the substring
     expect(searchWork).toBe(true);
-    expect(caseSensitivitySearchWork).toBe(true);
+  });
+
+  it("Search bus lines by description case sensitivity", async () => {
+    const { data, error, status } = await api["bus-stops"].index.get({
+      query: { q: q.toUpperCase() },
+    });
+
+    if (error) {
+      throw error.value;
+    }
+
+    expect(status).toBe(200);
+
+    // Check if all values include the substring
+    const searchWork = Object.values(data).every((value) =>
+      value?.toLowerCase().includes(q)
+    );
+
+    // Assert that all values contain the substring
+    expect(searchWork).toBeTruthy();
   });
 
   it("Search bus stops pagination", async () => {
-    const term = "port";
-    const response = await fetch(`${url}?offset=2`, {
-      method: "GET",
-      headers,
+    const { data, error, status } = await api["bus-stops"].index.get({
+      query: { q: q.toUpperCase(), offset: "2" },
     });
 
-    const data = (await response.json()) as { [key: string]: string };
+    if (error) {
+      throw error.value;
+    }
 
-    expect(response.status).toBe(200);
+    expect(status).toBe(200);
     expect(Object.keys(data).length).toBeLessThanOrEqual(100);
-    expect(Object.keys(data)[0]).toBe("2");
-
-    expect;
+    expect(Object.keys(data)[0]).toBe("96");
   });
 });
 
@@ -81,21 +86,15 @@ describe("Get a Bus stops", () => {
   const randomStopId = mock(() => faker.helpers.arrayElement(busStopsIds));
 
   it("Get a bus stop infos", async () => {
-    const stopId = randomStopId();
-    const response = await fetch(`${url}/${stopId}`, {
-      method: "GET",
-      headers,
-    });
-    const data = (await response.json()) as {
-      id: number;
-      name: string;
-      latitude: string;
-      longitude: string;
-      logicalId: string;
-      linkedBusLines: { [key: string]: string };
-    };
+    const bus_stop_id = randomStopId();
+    const { data, error, status } = await api["bus-stops"]({
+      bus_stop_id,
+    }).get();
 
-    expect(response.status).toBe(200);
+    if (error) {
+      throw error.value;
+    }
+    expect(status).toBe(200);
     expect(data).toContainKeys([
       "id",
       "name",
@@ -104,33 +103,36 @@ describe("Get a Bus stops", () => {
       "logicalId",
       "linkedBusLines",
     ]);
-    expect(data.id).toBe(parseInt(stopId));
+    expect(data.id).toBe(bus_stop_id);
     expect(data.linkedBusLines).toBeObject();
 
     const titleAreStrings = Object.values(data.linkedBusLines).every(
-      (title: string) => typeof title === "string"
+      (title) => typeof title === "string"
     );
 
     expect(titleAreStrings).toBeTrue();
   });
 
   it("Get an non-existing bus stop infos", async () => {
-    const response = await fetch(`${url}/${invalidbusStopId}`, {
-      method: "GET",
-      headers,
-    });
-    const data: any = await response.json();
+    const { data, error, status } = await api["bus-stops"]({
+      bus_stop_id: invalidbusStopId,
+    }).get();
 
-    expect(response.status).toBe(404);
-    expect(data.error.message).toBe(`Bus stop ${invalidbusStopId} not found`);
+    expect(error).toBeObject();
+    if (error) {
+      const value = error.value as { error: { name: string; message: string } };
+
+      expect(status).toBe(404);
+      expect(value.error.message).toBe(
+        `Bus stop ${invalidbusStopId} not found`
+      );
+    }
   });
 });
 
 describe("Get a Bus stops Log", () => {
   // TODO
-
   // 1. All logs
-
   // 2. All logs of a single line
 });
 
