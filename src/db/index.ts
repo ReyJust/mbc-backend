@@ -2,15 +2,12 @@ import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as schema from "./schema.ts";
 import { Client } from "pg";
 
-import * as dotenv from "dotenv";
-
 export type DrizzleDatabase = {
   client: Client;
   db: NodePgDatabase<typeof schema>;
 };
 
 export default async function init_database() {
-  dotenv.config({ path: "./.env" });
 
   const DATABASE_URL = process.env.DATABASE_URL;
 
