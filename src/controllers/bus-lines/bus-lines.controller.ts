@@ -3,6 +3,7 @@ import init_database from "../../db";
 import { eq, or, ilike, asc, and } from "drizzle-orm";
 import { busLines, busRoutes, busStops } from "../../db/schema";
 import { sessionMiddleware } from "../../middlewares";
+import { AlreadyExistsError } from "../../utils/errors";
 
 const db = new Elysia({ name: "db" }).decorate("db", await init_database());
 
@@ -158,7 +159,7 @@ export const busLinesController = new Elysia({
           .values(routeData)
           .returning();
 
-        console.log(route);
+        // console.log(route);
 
         return {
           route_no: line.id,
@@ -168,7 +169,7 @@ export const busLinesController = new Elysia({
       } catch (e) {
         // Delete the line if the route creation fails
         await db.db.delete(busLines).where(eq(busLines.id, route_no));
-        console.log(e);
+        // console.log(e);
         throw new Error(`Failed to create route for ${route_no}`);
       }
     },
@@ -293,14 +294,6 @@ type IRouteStop = {
   routeNo: string;
   type: "via" | "break";
 };
-
-// Create a custom error for already existing items
-class AlreadyExistsError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "AlreadyExistsError";
-  }
-}
 
 // function split_directions(stops: IRouteCreationStop[]) {
 //   const { outwardStops, inwardStops } = stops.reduce(
