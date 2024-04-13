@@ -39,6 +39,6 @@
     "dev": "docker compose up -d && bun --watch src/app.ts",
     "build": "bun build src/app.ts",
     "start": "NODE_ENV=production bun src/app.ts",
-    "test": "bun test"
+    "test": "bun src/db/seed.ts --yes && NODE_ENV=test bun test"
   }
 }
