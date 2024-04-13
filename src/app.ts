@@ -12,11 +12,18 @@ import { cors } from "@elysiajs/cors";
 import chalk from "chalk";
 import { logger } from "@bogeychan/elysia-logger";
 
+import * as dotenv from "dotenv";
+dotenv.config({ path: "./.env" });
+
 const db = new Elysia({ name: "db" }).decorate("db", await init_database());
+
+const autoLogging = process.env.NODE_ENV != "test" ? true : false;
 
 const app = new Elysia()
   .use(
     logger({
+      // @ts-ignore
+      autoLogging,
       level: "info",
       transport: {
         target: "pino-pretty",
@@ -44,7 +51,7 @@ const app = new Elysia()
     })
   )
   .onError(({ code, error, set, log }) => {
-    console.log(code);
+    // console.log(code);
     let error_name: null | string = null;
     let message: null | string = null;
 
@@ -109,12 +116,10 @@ console.info(
 );
 
 // app.onStop((app) => {
-//   app.
-//   console.log("stopped app");
+//   console.log("Stopping app");
 // });
 
 // process.on("SIGINT", (code) => {
-//   console.log('log')
 //   app.stop();
 // });
 
