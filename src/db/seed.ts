@@ -9,6 +9,9 @@ dotenv.config({ path: "./.env" });
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
+const args = process.argv.slice(2);
+const prompt: boolean = args.includes("--yes") ? false : true;
+
 if (!("DATABASE_URL" in process.env)) {
   throw new Error("DATABASE_URL not found on .env");
 }
@@ -58,30 +61,36 @@ const seed = async (): Promise<void> => {
       "bus_routes",
     ];
 
-    const prompt = await inquirer.prompt([
-      {
-        type: "confirm",
-        name: "proceed",
-        message: "🧨 Reset & 🌱 Seed Database?",
-      },
-    ]);
+    if (prompt) {
+      const prompt = await inquirer.prompt([
+        {
+          type: "confirm",
+          name: "proceed",
+          message: "🧨 Reset & 🌱 Seed Database?",
+        },
+      ]);
 
-    if (!prompt.proceed) {
-      console.log(chalk.red("⏮️ Cancelling"));
-      return;
+      if (!prompt.proceed) {
+        console.log(chalk.red("⏮️ Cancelling"));
+        return;
+      }
     }
 
     await clear(drizzleDb);
 
     for (const table_name of TABLES) {
       console.log(table_name);
-      
-      const setSerial = ['bus_logs', 'bus_stops', 'bus_routes'].includes(table_name) ? `SELECT setval('${table_name}_id_seq', max(id)) FROM ${table_name}`: "";
+
+      const setSerial = ["bus_logs", "bus_stops", "bus_routes"].includes(
+        table_name
+      )
+        ? `SELECT setval('${table_name}_id_seq', max(id)) FROM ${table_name}`
+        : "";
       // const table_name = getTableName(table);
       const populate_query = sql.raw(
         `COPY ${table_name} FROM '/data/${table_name}.csv' DELIMITER ',' CSV HEADER;
         ${setSerial}`
-      )
+      );
 
       const res = await drizzleDb.db.execute(populate_query);
       /* @ts-ignore */
