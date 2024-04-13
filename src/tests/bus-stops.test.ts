@@ -140,114 +140,79 @@ describe("Nearest Bus stop", () => {
   // TODO
 });
 
-// describe("Update a Bus Line", () => {
-//   const invalidbusLineId = 999999;
-//   const randomLineId = mock(() => faker.helpers.arrayElement(busLineIds));
-//   const randomDirection = mock(() => Math.floor(Math.random() * 2) + 1);
+describe("Update a Bus stop", () => {
+  const invalidbusStopId = 999999;
+  const newName = "New Bus Stop Name";
+  const randomBusStopId = mock(() => faker.helpers.arrayElement(busStopsIds));
 
-//   it("Update a bus line", async () => {
-//     const newTitle = "New Title";
-//     const lineId = randomLineId();
+  it("Update a bus stop", async () => {
+    const bus_stop_id = randomBusStopId();
 
-//     const response = await fetch(`${url}/${lineId}`, {
-//       method: "PUT",
-//       headers,
-//       body: JSON.stringify({
-//         title: newTitle,
-//       }),
-//     });
-//     const data: any = await response.json();
+    const { data, error, status } = await api["bus-stops"]({
+      bus_stop_id,
+    }).put({ name: newName, latitude: 0, longitude: 1 });
 
-//     expect(response.status).toBe(200);
-//     expect(data).toContainKeys(["title", "route_no"]);
-//     expect(data.route_no).toBe(lineId);
-//     expect(data.title).toBe(newTitle);
-//   });
+    if (error) {
+      throw error.value;
+    }
 
-//   it("Update an non-existing bus line", async () => {
-//     const response = await fetch(`${url}/${invalidbusLineId}`, {
-//       method: "GET",
-//       headers,
-//     });
-//     const data: any = await response.json();
+    expect(status).toBe(200);
+    expect(data).toContainKeys([
+      "id",
+      "name",
+      "latitude",
+      "longitude",
+      "logicalId",
+    ]);
+    expect(data.id).toBe(bus_stop_id);
+    expect(data.name).toBe(newName);
+    expect(data.latitude).toBe(0);
+    expect(data.longitude).toBe(1);
+  });
 
-//     expect(response.status).toBe(404);
-//     expect(data.error.message).toBe(`Bus line ${invalidbusLineId} not found`);
-//   });
-// });
+  it("Update an non-existing bus line", async () => {
+    const { data, error, status } = await api["bus-stops"]({
+      bus_stop_id: invalidbusStopId,
+    }).get({});
 
-// describe("Create a Bus Line", () => {
-//   const minimalStopsPayload = {
-//     inward: [
-//       {
-//         bus_stop_id: 1,
-//         fare_stage: 0,
-//         average_journey_time: 0,
-//         direction: 1,
-//         type: "break",
-//       },
-//       {
-//         bus_stop_id: 2,
-//         fare_stage: 0,
-//         average_journey_time: 0,
-//         direction: 1,
-//         type: "break",
-//       },
-//     ],
-//     outward: [
-//       {
-//         bus_stop_id: 2,
-//         fare_stage: 0,
-//         average_journey_time: 0,
-//         direction: 1,
-//         type: "break",
-//       },
-//       {
-//         bus_stop_id: 1,
-//         fare_stage: 0,
-//         average_journey_time: 0,
-//         direction: 1,
-//         type: "break",
-//       },
-//     ],
-//   };
-//   it("Create a bus line", async () => {
-//     const newTitle = "New Title";
-//     const route_no = "New bus line";
-//     const response = await fetch(`${url}/`, {
-//       method: "POST",
-//       headers,
-//       body: JSON.stringify({
-//         route_no,
-//         title: newTitle,
-//         stops: minimalStopsPayload,
-//       }),
-//     });
-//     const data: any = await response.json();
+    expect(error).toBeObject();
+    if (error) {
+      const value = error.value as { error: { name: string; message: string } };
 
-//     expect(response.status).toBe(200);
-//     expect(data).toContainKeys(["title", "route_no", "stops"]);
-//     expect(data.route_no).toBe(route_no);
-//     expect(data.title).toBe(newTitle);
+      expect(status).toBe(404);
 
-//     expect(data.stops).toBeObject();
-//     expect(data.stops).toBeArrayOfSize(4);
-//   });
+      expect(value.error.name).toBe(`Not Found`);
+      expect(value.error.message).toBe(
+        `Bus stop ${invalidbusStopId} not found`
+      );
+    }
+  });
+});
 
-//   it("Create a bus line that already exist", async () => {
-//     const response = await fetch(`${url}`, {
-//       method: "POST",
-//       headers,
-//       body: JSON.stringify({
-//         route_no: "1",
-//         title: "New Line",
-//         stops: minimalStopsPayload,
-//       }),
-//     });
+describe("Bus Stop Creation", () => {
+  const newName = "New Bus Stop Name";
 
-//     const data: any = await response.json();
+  it("Create a bus Stop", async () => {
+    const { data, error, status } = await api["bus-stops"].index.post({
+      name: newName,
+      latitude: 0,
+      longitude: 1,
+    });
 
-//     expect(response.status).toBe(400);
-//     expect(data.error.message).toBe(`Route 1 already exists`);
-//   });
-// });
+    if (error) {
+      throw error.value;
+    }
+
+    expect(status).toBe(200);
+    expect(data).toContainKeys([
+      "id",
+      "name",
+      "latitude",
+      "longitude",
+      "logicalId",
+    ]);
+    expect(data.name).toBe(newName);
+    expect(data.latitude).toBe(0);
+    expect(data.longitude).toBe(1);
+  });
+});
