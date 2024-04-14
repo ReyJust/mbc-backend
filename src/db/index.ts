@@ -1,15 +1,11 @@
-import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema.ts";
 import { Client } from "pg";
+import type { IDatabase } from "../types/db.ts";
 
-export type DrizzleDatabase = {
-  client: Client;
-  db: NodePgDatabase<typeof schema>;
-};
-
-export default async function init_database() {
-
+export default async function init_database(): Promise<IDatabase> {
   const DATABASE_URL = process.env.DATABASE_URL;
+  console.log(DATABASE_URL);
 
   if (!("DATABASE_URL" in process.env)) {
     throw new Error("DATABASE_URL not found on .env");

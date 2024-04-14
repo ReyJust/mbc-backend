@@ -4,18 +4,16 @@ import { helmet } from "elysia-helmet";
 import {
   authController,
   busLinesController,
-  busRoutesController,
-  busStopsController,
+  // busRoutesController,
+  // busStopsController,
 } from "./controllers";
-import init_database from "./db";
 import { cors } from "@elysiajs/cors";
 import chalk from "chalk";
 import { logger } from "@bogeychan/elysia-logger";
 
 import * as dotenv from "dotenv";
+import { databaseMiddleware } from "./middlewares";
 dotenv.config({ path: "./.env" });
-
-const db = new Elysia({ name: "db" }).decorate("db", await init_database());
 
 const autoLogging = process.env.NODE_ENV != "test" ? true : false;
 
@@ -98,14 +96,14 @@ const app = new Elysia()
   })
   .use(cors())
   .use(helmet())
-  .use(db)
+  .use(databaseMiddleware)
   .get("/health", () => {
     return "Healthy!";
   })
   .use(authController)
   .use(busLinesController)
-  .use(busRoutesController)
-  .use(busStopsController)
+  // .use(busRoutesController)
+  // .use(busStopsController)
   .listen(3000);
 
 console.log(chalk.bgGreen(" RUNNING "));
@@ -123,5 +121,4 @@ console.info(
 //   app.stop();
 // });
 
-export { app, db };
-export type App = typeof app;
+export { app };
