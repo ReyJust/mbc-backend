@@ -1,35 +1,31 @@
-import { Elysia, NotFoundError, t, ValidationError } from "elysia";
-import init_database from "../../db";
+import {
+  Elysia,
+  NotFoundError,
+  t,
+  ValidationError,
+  type Context,
+} from "elysia";
 import { eq, or, ilike, asc, and } from "drizzle-orm";
-import { busLines, busRoutes, busStops } from "../../db/schema";
-import { sessionMiddleware } from "../../middlewares";
-import { AlreadyExistsError } from "../../utils/errors";
+import { busLines, busRoutes, busStops } from "../db/schema";
+import { sessionMiddleware, databaseMiddleware } from "../middlewares";
 
-const db = new Elysia({ name: "db" }).decorate("db", await init_database());
+import { BusLinesService } from "../services";
 
 export const busLinesController = new Elysia({
   prefix: "/bus-lines",
 })
-  .use(db)
+  .use(databaseMiddleware)
+  .derive(({ db }) => {
+    return {
+      BusLinesService: new BusLinesService(db),
+    };
+  })
   .get(
     "/",
-    async ({ db, query: { q } }) => {
-      const allRoutes = await db.db
-        .select()
-        .from(busLines)
-        .where(
-          or(
-            q ? ilike(busLines.id, `%${q}%`) : undefined,
-            q ? ilike(busLines.title, `%${q}%`) : undefined
-          )
-        );
+    async ({ query: { q }, BusLinesService }) => {
+      const allRoutes = await BusLinesService.getLines(q);
 
-      const a = allRoutes.reduce((acc, curr) => {
-        acc[curr.id] = curr.title;
-        return acc;
-      }, {} as Record<string, string | null>);
-
-      return a;
+      return allRoutes;
     },
     {
       query: t.Object({
@@ -46,39 +42,14 @@ export const busLinesController = new Elysia({
   )
   .get(
     "/:route_no",
-    async ({ db, params: { route_no }, query: { direction } }) => {
-      const busLine = await db.db.query.busLines.findFirst({
-        where: eq(busLines.id, route_no),
-      });
-
-      if (!busLine) {
-        throw new NotFoundError(`Bus line ${route_no} not found`);
-      }
-
-      const condition = [eq(busRoutes.routeNo, route_no)];
-
-      if (direction) {
-        //Filter by direction if asked
-        condition.push(eq(busRoutes.direction, direction));
-      }
-
-      const route = await db.db
-        .select({
-          fare_stage: busRoutes.fareStage,
-          average_journey_time: busRoutes.averageJourneyTimesInMinutes,
-          id: busRoutes.busStopId,
-          logical_id: busRoutes.busStopLogicalId,
-          type: busRoutes.type,
-          direction: busRoutes.direction,
-        })
-        .from(busRoutes)
-        .where(and(...condition))
-        .orderBy(asc(busRoutes.direction), asc(busRoutes.fareStage));
+    async ({ BusLinesService, params: { route_no }, query: { direction } }) => {
+      const busLine = await BusLinesService.getLine(route_no);
+      const lineRoute = await BusLinesService.getLineRoute(route_no, direction);
 
       return {
         title: busLine.title,
         route_no: busLine.id,
-        stops: Object.values(route),
+        stops: Object.values(lineRoute),
       };
     },
     {
@@ -123,55 +94,8 @@ export const busLinesController = new Elysia({
   .use(sessionMiddleware)
   .post(
     "/",
-    async ({ db, body: { route_no, title, stops } }) => {
-      let line: {
-        id: string;
-        title: string | null;
-      };
-
-      try {
-        const createLine = await db.db
-          .insert(busLines)
-          .values({
-            id: route_no,
-            title,
-          })
-          .returning();
-        line = createLine[0];
-      } catch (e) {
-        throw new AlreadyExistsError(`Route ${route_no} already exists`);
-      }
-
-      try {
-        let routeData = [...stops.inward, ...stops.outward].map((stops) => {
-          return {
-            busStopId: stops.bus_stop_id,
-            routeNo: route_no,
-            averageJourneyTimesInMinutes: String(stops.average_journey_time),
-            fareStage: stops.fare_stage,
-            direction: stops.direction,
-            type: stops.type,
-          };
-        });
-
-        const route = await db.db
-          .insert(busRoutes)
-          .values(routeData)
-          .returning();
-
-        // console.log(route);
-
-        return {
-          route_no: line.id,
-          title: line.title,
-          stops: route,
-        };
-      } catch (e) {
-        // Delete the line if the route creation fails
-        await db.db.delete(busLines).where(eq(busLines.id, route_no));
-        // console.log(e);
-        throw new Error(`Failed to create route for ${route_no}`);
-      }
+    async ({ BusLinesService, body: { route_no, title, stops } }) => {
+      return await BusLinesService.createLine(route_no, title, stops);
     },
     {
       body: t.Object({
@@ -184,7 +108,7 @@ export const busLinesController = new Elysia({
               fare_stage: t.Number({ maximum: 50 }),
               average_journey_time: t.Numeric(),
               direction: t.Number({ minimum: 1, maximum: 2 }),
-              type: t.Nullable(t.Enum({ via: "via", break: "break" })),
+              type: t.Enum({ via: "via", break: "break" }),
             }),
             {
               minItems: 2,
@@ -214,18 +138,9 @@ export const busLinesController = new Elysia({
   )
   .put(
     "/:route_no",
-    async ({ db, params: { route_no }, body: { title } }) => {
-      const line = await db.db
-        .update(busLines)
-        .set({
-          title,
-        })
-        .where(eq(busLines.id, route_no))
-        .returning();
-      
-      if (line.length === 0 ) {
-        throw new NotFoundError(`Bus line ${route_no} not found`);
-      }
+    async ({ BusLinesService, params: { route_no }, body: { title } }) => {
+      const line = await BusLinesService.updateLine(route_no, title);
+
       // TODO: Make a route to add remove a stop
       // const routeData: {
       //   fareStage: number;
@@ -251,8 +166,8 @@ export const busLinesController = new Elysia({
       //   .where(eq(busRoutes.routeNo, route_no));
 
       return {
-        route_no: line[0].id,
-        title: line[0].title,
+        route_no: line.id,
+        title: line.title,
       };
     },
     {
@@ -285,15 +200,6 @@ type IBusStop = {
 };
 
 type INewBusStop = Omit<IBusStop, "id">;
-
-// ? A route stop that reference a bus stop
-type IRouteStop = {
-  busStopId: number;
-  fareStage: number;
-  direction: number;
-  routeNo: string;
-  type: "via" | "break";
-};
 
 // function split_directions(stops: IRouteCreationStop[]) {
 //   const { outwardStops, inwardStops } = stops.reduce(
