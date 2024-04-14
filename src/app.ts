@@ -4,8 +4,8 @@ import { helmet } from "elysia-helmet";
 import {
   authController,
   busLinesController,
-  // busRoutesController,
-  // busStopsController,
+  busRoutesController,
+  busStopsController,
 } from "./controllers";
 import { cors } from "@elysiajs/cors";
 import chalk from "chalk";
@@ -102,8 +102,8 @@ const app = new Elysia()
   })
   .use(authController)
   .use(busLinesController)
-  // .use(busRoutesController)
-  // .use(busStopsController)
+  .use(busRoutesController)
+  .use(busStopsController)
   .listen(3000);
 
 console.log(chalk.bgGreen(" RUNNING "));
