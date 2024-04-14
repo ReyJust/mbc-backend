@@ -4,7 +4,7 @@ import { userTable } from "../db/schema.js";
 import { NotFoundError } from "elysia";
 import { eq } from "drizzle-orm";
 
-export class UserService {
+export default class UserService {
   private db: IDatabase;
 
   constructor(db: IDatabase) {
